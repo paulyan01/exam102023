@@ -20,8 +20,22 @@ resource "azurerm_kubernetes_cluster" "k8scluster" {
     vm_size    = "Standard_D2_v2"
   }
 
-  service_principal {
-    client_id     = "00000000-0000-0000-0000-000000000000"
-    client_secret = "00000000000000000000000000000000"
+  identity {
+    type = "SystemAssigned"
   }
+
+  tags = {
+    Environment = "Production"
+  }
+}
+
+output "client_certificate" {
+  value     = [for cluster in azurerm_kubernetes_cluster.k8scluster: cluster.kube_config.0.client_certificate]
+  sensitive = true
+}
+
+output "kube_config" {
+  value = [for cluster in azurerm_kubernetes_cluster.k8scluster: cluster.kube_config_raw]
+
+  sensitive = true
 }
